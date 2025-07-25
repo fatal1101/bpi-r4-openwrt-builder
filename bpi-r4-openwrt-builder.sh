@@ -16,20 +16,15 @@ rm -rf openwrt
 rm -rf mtk-openwrt-feeds
 
 git clone --branch openwrt-24.10 https://git.openwrt.org/openwrt/openwrt.git openwrt || true
-cd openwrt; git checkout e876f7bc62592ca8bc3125e55936cd0f761f4d5a; cd -;		#add support for Zbtlink ZBT-Z8102AX v2
+cd openwrt; git checkout ac80abb085117d5f198729b982e80f4f3de7bd18; cd -;		#wifi-scripts: correctly set basic-rates with wpa_supplicant
 
 
 git clone  https://git01.mediatek.com/openwrt/feeds/mtk-openwrt-feeds || true
-cd mtk-openwrt-feeds; git checkout 7ab016b920ee13c0c099ab8b57b1774c95609deb; cd -;	#Fix nf_conn_qos offset len incorrect issue
+cd mtk-openwrt-feeds; git checkout 9a5944b3c880a3d2622d360ca4a2e9aedbde2314; cd -;	#Fix IPSec traffic not entering SW fast path issue
 
-echo "7ab016b" > mtk-openwrt-feeds/autobuild/unified/feed_revision
+echo "9a5944" > mtk-openwrt-feeds/autobuild/unified/feed_revision
 
-#\cp -r configs/defconfig mtk-openwrt-feeds/autobuild/unified/filogic/24.10/defconfig
-#\cp -r configs/dbg_defconfig mtk-openwrt-feeds/autobuild/unified/filogic/24.10/defconfig	#dbg+strongswan
 \cp -r configs/dbg_defconfig_crypto mtk-openwrt-feeds/autobuild/unified/filogic/24.10/defconfig
-
-#Change Feeds Revision
-#\cp -r my_files/w-feed_revision mtk-openwrt-feeds/autobuild/unified/feed_revision
 
 \cp -r my_files/w-rules mtk-openwrt-feeds/autobuild/unified/filogic/rules
 
@@ -47,9 +42,6 @@ cp -r my_files/200-wozi-libiwinfo-fix_noise_reading_for_radios.patch openwrt/pac
 
 ### tx_power patch - required for BE14 boards with defective eeprom flash
 \cp -r my_files/99999_tx_power_check.patch mtk-openwrt-feeds/autobuild/unified/filogic/mac80211/24.10/files/package/kernel/mt76/patches/
-
-### tx_power patch - by dan pawlik
-#\cp -r my_files/99999_tx_power_check_by_dan_pawlik.patch mtk-openwrt-feeds/autobuild/unified/filogic/mac80211/24.10/files/package/kernel/mt76/patches/
 
 ### required & thermal zone 
 \cp -r my_files/1007-wozi-arch-arm64-dts-mt7988a-add-thermal-zone.patch mtk-openwrt-feeds/24.10/patches-base/
@@ -76,7 +68,7 @@ exit 0
 
 cd openwrt
 # Basic config
-\cp -r ../configs/rc1_ext_mm_config .config
+\cp -r ../configs/mm_config .config
 
 
 ###### Then you can add all required additional feeds/packages ######### 
