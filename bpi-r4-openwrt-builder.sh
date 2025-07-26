@@ -68,7 +68,7 @@ exit 0
 
 cd openwrt
 # Basic config
-\cp -r ../configs/mm_config .config
+\cp -r ../configs/mm.config .config
 
 
 ###### Then you can add all required additional feeds/packages ######### 
