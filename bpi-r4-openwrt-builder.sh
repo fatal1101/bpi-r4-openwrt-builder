@@ -24,9 +24,11 @@ cd mtk-openwrt-feeds; git checkout 9a5944b3c880a3d2622d360ca4a2e9aedbde2314; cd 
 
 echo "9a5944" > mtk-openwrt-feeds/autobuild/unified/feed_revision
 
-\cp -r configs/dbg_defconfig_crypto mtk-openwrt-feeds/autobuild/unified/filogic/24.10/defconfig
+wget https://raw.githubusercontent.com/fatal1101/bpi-r4-openwrt-builder/refs/heads/main/configs/dbg_defconfig_crypto \
+ -O mtk-openwrt-feeds/autobuild/unified/filogic/24.10/defconfig
 
-\cp -r my_files/w-rules mtk-openwrt-feeds/autobuild/unified/filogic/rules
+wget https://raw.githubusercontent.com/fatal1101/bpi-r4-openwrt-builder/refs/heads/main/my_files/w-rules \
+ -O mtk-openwrt-feeds/autobuild/unified/filogic/rules
 
 ### remove mtk strongswan uci support patch
 rm -rf mtk-openwrt-feeds/24.10/patches-feeds/108-strongswan-add-uci-support.patch 
@@ -38,13 +40,15 @@ rm -rf mtk-openwrt-feeds/24.10/patches-feeds/108-strongswan-add-uci-support.patc
 #\cp -r my_files/regdb.Makefile openwrt/package/firmware/wireless-regdb/Makefile
 
 ### adds a frequency match check to ensure the noise value corresponds to the interface's actual frequency for multiple radios under a single wiphy
-cp -r my_files/200-wozi-libiwinfo-fix_noise_reading_for_radios.patch openwrt/package/network/utils/iwinfo/patches
+wget https://raw.githubusercontent.com/fatal1101/bpi-r4-openwrt-builder/refs/heads/main/my_files/200-wozi-libiwinfo-fix_noise_reading_for_radios.patch \
+ -O openwrt/package/network/utils/iwinfo/patches/200-wozi-libiwinfo-fix_noise_reading_for_radios.patch
 
 ### tx_power patch - required for BE14 boards with defective eeprom flash
-\cp -r my_files/99999_tx_power_check.patch mtk-openwrt-feeds/autobuild/unified/filogic/mac80211/24.10/files/package/kernel/mt76/patches/
+#\cp -r my_files/99999_tx_power_check.patch mtk-openwrt-feeds/autobuild/unified/filogic/mac80211/24.10/files/package/kernel/mt76/patches/
 
 ### required & thermal zone 
-\cp -r my_files/1007-wozi-arch-arm64-dts-mt7988a-add-thermal-zone.patch mtk-openwrt-feeds/24.10/patches-base/
+wget https://raw.githubusercontent.com/fatal1101/bpi-r4-openwrt-builder/refs/heads/main/my_files/1007-wozi-arch-arm64-dts-mt7988a-add-thermal-zone.patch \
+ -O mtk-openwrt-feeds/24.10/patches-base/1007-wozi-arch-arm64-dts-mt7988a-add-thermal-zone.patch
 
 sed -i 's/CONFIG_PACKAGE_perf=y/# CONFIG_PACKAGE_perf is not set/' mtk-openwrt-feeds/autobuild/unified/filogic/mac80211/24.10/defconfig
 sed -i 's/CONFIG_PACKAGE_perf=y/# CONFIG_PACKAGE_perf is not set/' mtk-openwrt-feeds/autobuild/autobuild_5.4_mac80211_release/mt7988_wifi7_mac80211_mlo/.config
@@ -68,7 +72,8 @@ exit 0
 
 cd openwrt
 # Basic config
-\cp -r ../configs/mm.config .config
+wget https://raw.githubusercontent.com/fatal1101/bpi-r4-openwrt-builder/refs/heads/main/configs/mm.config \
+ -O .config
 
 
 ###### Then you can add all required additional feeds/packages ######### 
