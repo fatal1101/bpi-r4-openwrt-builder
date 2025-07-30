@@ -20,9 +20,9 @@ cd openwrt; git checkout ac80abb085117d5f198729b982e80f4f3de7bd18; cd -;		#wifi-
 
 
 git clone  https://git01.mediatek.com/openwrt/feeds/mtk-openwrt-feeds || true
-cd mtk-openwrt-feeds; git checkout 9a5944b3c880a3d2622d360ca4a2e9aedbde2314; cd -;	#Fix IPSec traffic not entering SW fast path issue
+cd mtk-openwrt-feeds; git checkout 	5ff8e8eed13fea5948e9b0172ea7610b0bbb9ab8; cd -;	#Fix IPSec traffic not entering SW fast path issue
 
-echo "9a5944" > mtk-openwrt-feeds/autobuild/unified/feed_revision
+echo "5ff8e8e" > mtk-openwrt-feeds/autobuild/unified/feed_revision
 
 \cp -r configs/dbg_defconfig_crypto mtk-openwrt-feeds/autobuild/unified/filogic/24.10/defconfig
 
