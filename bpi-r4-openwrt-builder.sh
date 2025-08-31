@@ -2,13 +2,13 @@
 
 #*****************************************************************************
 #
-# Build environment - Ubuntu 64-bit Server 24.04.2
+# Build environment - Ubuntu 64-bit Desktop 25.04
 #
 # sudo apt update
 # sudo apt install build-essential clang flex bison g++ gawk \
 # gcc-multilib g++-multilib gettext git libncurses-dev libssl-dev \
 # python3-setuptools rsync swig unzip zlib1g-dev file wget \
-# libtraceevent-dev systemtap-sdt-dev libslang-dev
+# libtraceevent-dev systemtap-sdt-dev libslang2-dev
 #
 #*****************************************************************************
 
@@ -16,21 +16,23 @@ rm -rf openwrt
 rm -rf mtk-openwrt-feeds
 
 git clone --branch openwrt-24.10 https://git.openwrt.org/openwrt/openwrt.git openwrt || true
-cd openwrt; git checkout 4941509f573676c4678115a0a3a743ef78b63c17; cd -;		#uhttpd: update to Git HEAD (2025-07-06)
+cd openwrt; git checkout a65ca44cb7a3e6fbb43b230c7c5a0684d88bae8b; cd -;		#kernel: bump 6.6 to 6.6.102
 
 git clone  https://git01.mediatek.com/openwrt/feeds/mtk-openwrt-feeds || true
-cd mtk-openwrt-feeds; git checkout 39d725c3e3b486405e6148c8466111ef13516808; cd -;	#Refactor wed amsdu init value 
+cd mtk-openwrt-feeds; git checkout b6114208501871ae977ab17c7d00ae8231266e99; cd -;	#Fix trng patch failed since upgrading to 6.6.102
 
-echo "39d725" > mtk-openwrt-feeds/autobuild/unified/feed_revision
+echo "b611420" > mtk-openwrt-feeds/autobuild/unified/feed_revision
 
 #\cp -r configs/defconfig mtk-openwrt-feeds/autobuild/unified/filogic/24.10/defconfig
 #\cp -r configs/dbg_defconfig mtk-openwrt-feeds/autobuild/unified/filogic/24.10/defconfig	#dbg+strongswan
-#####\cp -r configs/dbg_defconfig_crypto mtk-openwrt-feeds/autobuild/unified/filogic/24.10/defconfig
+#\cp -r configs/dbg_defconfig_crypto mtk-openwrt-feeds/autobuild/unified/filogic/24.10/defconfig
 
 #Change Feeds Revision
-#\cp -r my_files/w-feed_revision mtk-openwrt-feeds/autobuild/unified/feed_revision
+#\cp -r my_files/w-feeds.conf.default openwrt/feeds.conf.default
 
 \cp -r my_files/w-rules mtk-openwrt-feeds/autobuild/unified/filogic/rules
+
+\cp -r my_files/0003-w-hostapd-package-makefile-ucode-files.patch mtk-openwrt-feeds/autobuild/unified/filogic/mac80211/24.10/patches-base/0003-hostapd-package-makefile-ucode-files.patch
 
 ### remove mtk strongswan uci support patch
 rm -rf mtk-openwrt-feeds/24.10/patches-feeds/108-strongswan-add-uci-support.patch 
@@ -42,7 +44,7 @@ rm -rf mtk-openwrt-feeds/24.10/patches-feeds/108-strongswan-add-uci-support.patc
 #\cp -r my_files/regdb.Makefile openwrt/package/firmware/wireless-regdb/Makefile
 
 ### adds a frequency match check to ensure the noise value corresponds to the interface's actual frequency for multiple radios under a single wiphy
-cp -r my_files/200-wozi-libiwinfo-fix_noise_reading_for_radios.patch openwrt/package/network/utils/iwinfo/patches
+\cp -r my_files/200-wozi-libiwinfo-fix_noise_reading_for_radios.patch openwrt/package/network/utils/iwinfo/patches
 
 ### tx_power patch - required for BE14 boards with defective eeprom flash
 \cp -r my_files/99999_tx_power_check.patch mtk-openwrt-feeds/autobuild/unified/filogic/mac80211/24.10/files/package/kernel/mt76/patches/
@@ -69,7 +71,8 @@ exit 0
 #################
 
 cd openwrt
-\cp -r ../configs/config_mm_06082025 .config
+# Basic config
+\cp -r ../configs/mm.config .config
 
 
 ###### Then you can add all required additional feeds/packages ######### 
