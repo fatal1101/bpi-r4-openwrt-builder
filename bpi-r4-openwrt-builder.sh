@@ -16,23 +16,16 @@ rm -rf openwrt
 rm -rf mtk-openwrt-feeds
 
 git clone --branch openwrt-24.10 https://git.openwrt.org/openwrt/openwrt.git openwrt || true
-cd openwrt; git checkout a65ca44cb7a3e6fbb43b230c7c5a0684d88bae8b; cd -;		#kernel: bump 6.6 to 6.6.102
+cd openwrt; git checkout b4b9288f2aa3dd1a759e5effbc8378f614bd5755; cd -;		#mac80211: Update to 6.12.44
 
 git clone  https://git01.mediatek.com/openwrt/feeds/mtk-openwrt-feeds || true
-cd mtk-openwrt-feeds; git checkout b6114208501871ae977ab17c7d00ae8231266e99; cd -;	#Fix trng patch failed since upgrading to 6.6.102
+cd mtk-openwrt-feeds; git checkout 787f5039cce935b94b11b6120c4014ad65e0dbb9; cd -;	#[openwrt-24][mt7988][fitblk][Fix fitblk create fitrw dev]
 
-echo "b611420" > mtk-openwrt-feeds/autobuild/unified/feed_revision
 
-#\cp -r configs/defconfig mtk-openwrt-feeds/autobuild/unified/filogic/24.10/defconfig
-#\cp -r configs/dbg_defconfig mtk-openwrt-feeds/autobuild/unified/filogic/24.10/defconfig	#dbg+strongswan
-#\cp -r configs/dbg_defconfig_crypto mtk-openwrt-feeds/autobuild/unified/filogic/24.10/defconfig
+echo "787f503" > mtk-openwrt-feeds/autobuild/unified/feed_revision
 
-#Change Feeds Revision
-#\cp -r my_files/w-feeds.conf.default openwrt/feeds.conf.default
-
+### comment this patch if you do not need crypto + strongswan
 \cp -r my_files/w-rules mtk-openwrt-feeds/autobuild/unified/filogic/rules
-
-\cp -r my_files/0003-w-hostapd-package-makefile-ucode-files.patch mtk-openwrt-feeds/autobuild/unified/filogic/mac80211/24.10/patches-base/0003-hostapd-package-makefile-ucode-files.patch
 
 ### remove mtk strongswan uci support patch
 rm -rf mtk-openwrt-feeds/24.10/patches-feeds/108-strongswan-add-uci-support.patch 
@@ -56,6 +49,8 @@ sed -i 's/CONFIG_PACKAGE_perf=y/# CONFIG_PACKAGE_perf is not set/' mtk-openwrt-f
 sed -i 's/CONFIG_PACKAGE_perf=y/# CONFIG_PACKAGE_perf is not set/' mtk-openwrt-feeds/autobuild/autobuild_5.4_mac80211_release/mt7988_wifi7_mac80211_mlo/.config
 sed -i 's/CONFIG_PACKAGE_perf=y/# CONFIG_PACKAGE_perf is not set/' mtk-openwrt-feeds/autobuild/autobuild_5.4_mac80211_release/mt7986_mac80211/.config
 
+\cp -r my_files/3703-6.6.103-remove-uci-duplicate-ports.patch mtk-openwrt-feeds/autobuild/unified/filogic/24.10/patches-base/
+
 cd openwrt
 bash ../mtk-openwrt-feeds/autobuild/unified/autobuild.sh filogic-mac80211-mt7988_rfb-mt7996 log_file=make
 
@@ -71,8 +66,8 @@ exit 0
 #################
 
 cd openwrt
-# Basic config
-\cp -r ../configs/mm.config .config
+## RC3_crypto config
+\cp -r ../configs/mm_config .config
 
 
 ###### Then you can add all required additional feeds/packages ######### 
@@ -90,6 +85,6 @@ cd openwrt
 ####### And finally configure whatever you want ##########
 
 make menuconfig
-make -j$(nproc)
+make -j1 V=sc
 
 
