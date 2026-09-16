@@ -1,5 +1,10 @@
 # OpenWrt build for Banana Pi BPI-R4 (kernel 6.6)
 
+> **Newer work lives in [woziwrt/bpi-r4-deploy](https://github.com/woziwrt/bpi-r4-deploy).**
+> This repository builds OpenWrt 24.10 on kernel 6.6 and is kept for reference — and because
+> `patches-for-bocun/` is still used to hand patches to MediaTek. For current images
+> (OpenWrt 25.12, kernel 6.12, BPI-R4 and BPI-R4 Pro 8X) use bpi-r4-deploy.
+
 This repository contains a script and a GitHub Actions workflow to build OpenWrt 24.10 for Banana Pi BPI‑R4 (MT7988, Wi‑Fi 7) using the MediaTek SDK.
 
 Goal: you do not need a local build machine. You can trigger the build on GitHub and download ready-to-use images. Advanced users can tweak the config if they want.
