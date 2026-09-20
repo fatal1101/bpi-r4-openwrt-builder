@@ -1,30 +1,14 @@
 #!/bin/bash
-
-#*****************************************************************************
-#
-# Build environment - Ubuntu 64-bit Desktop 25.04
-#
-# sudo apt update
-# sudo apt install build-essential clang flex bison g++ gawk \
-# gcc-multilib g++-multilib gettext git libncurses-dev libssl-dev \
-# python3-setuptools rsync swig unzip zlib1g-dev file wget \
-# libtraceevent-dev systemtap-sdt-dev libslang2-dev
-#
-#*****************************************************************************
+set -euo pipefail
 
 rm -rf openwrt
 rm -rf mtk-openwrt-feeds
 
-git clone --branch openwrt-24.10 https://git.openwrt.org/openwrt/openwrt.git openwrt || true
-cd openwrt; git checkout 444299d70c12eb6b8543f990a62fbdd764798771; cd -;		#kernel: backport mediatek WED DMA mask fixes
+git clone --branch openwrt-24.10 https://git.openwrt.org/openwrt/openwrt.git openwrt
+cd openwrt; git checkout 77d54cca84ffbb7754d592712ee96b0fcbff0d92; cd -;		#jsonfilter: fix memory leak in jsonfilter
 
-git clone  https://git01.mediatek.com/openwrt/feeds/mtk-openwrt-feeds || true
-cd mtk-openwrt-feeds; git checkout b65226d58ec5dc743de69c481745ef03188c4885; cd -;	#[openwrt-master][common][u-boot][Add mt7981 and mt7986 U-boot support]
-
-\cp -r my_files/w-rules mtk-openwrt-feeds/autobuild/unified/filogic/rules
-
-### remove mtk strongswan uci support patch
-rm -rf mtk-openwrt-feeds/24.10/patches-feeds/108-strongswan-add-uci-support.patch 
+git clone --branch master https://git01.mediatek.com/openwrt/feeds/mtk-openwrt-feeds
+cd mtk-openwrt-feeds; git checkout 1823bb66e40b3a5db7b0a8b26e7022c074fbe3f2; cd -;	#[MAC80211][kernel-6.6/kernel-6.12][wed][Add WED version3 support RROQM bypass wo]
 
 ### wireless-regdb modification - this remove all regdb wireless countries restrictions
 #rm -rf openwrt/package/firmware/wireless-regdb/patches/*.*
@@ -32,32 +16,17 @@ rm -rf mtk-openwrt-feeds/24.10/patches-feeds/108-strongswan-add-uci-support.patc
 #\cp -r my_files/500-tx_power.patch mtk-openwrt-feeds/autobuild/unified/filogic/mac80211/24.10/files/package/firmware/wireless-regdb/patches
 #\cp -r my_files/regdb.Makefile openwrt/package/firmware/wireless-regdb/Makefile
 
+rm -rf mtk-openwrt-feeds/24.10/patches-feeds/108-strongswan-add-uci-support.patch
+
+\cp -r my_files/9999-sfp-10-additional-quirks.patch mtk-openwrt-feeds/24.10/files/target/linux/mediatek/patches-6.6
+
 ### tx_power patch - required for BE14 boards with defective eeprom flash
 \cp -r my_files/99999_tx_power_check.patch mtk-openwrt-feeds/autobuild/unified/filogic/mac80211/24.10/files/package/kernel/mt76/patches/
-
-### required & thermal zone 
 \cp -r my_files/1007-wozi-arch-arm64-dts-mt7988a-add-thermal-zone.patch mtk-openwrt-feeds/24.10/patches-base/
 
-sed -i 's/CONFIG_PACKAGE_perf=y/# CONFIG_PACKAGE_perf is not set/' mtk-openwrt-feeds/autobuild/unified/filogic/mac80211/24.10/defconfig
-sed -i 's/CONFIG_PACKAGE_perf=y/# CONFIG_PACKAGE_perf is not set/' mtk-openwrt-feeds/autobuild/autobuild_5.4_mac80211_release/mt7988_wifi7_mac80211_mlo/.config
-sed -i 's/CONFIG_PACKAGE_perf=y/# CONFIG_PACKAGE_perf is not set/' mtk-openwrt-feeds/autobuild/autobuild_5.4_mac80211_release/mt7986_mac80211/.config
-
 cd openwrt
-bash ../mtk-openwrt-feeds/autobuild/unified/autobuild.sh filogic-mac80211-mt7988_rfb-mt7996 log_file=make
+bash ../mtk-openwrt-feeds/autobuild/unified/autobuild.sh filogic-mac80211-mt7988_rfb-mt7996 prepare
 
-exit 0
-
-########### After successful end of build #############
-
-\cp -r ../configs/config.mm .config
-make menuconfig
-make V=s -j$(nproc)
-
-
-
-### Telit FN990 modem extension
- 
-cd openwrt
 \cp -r ../my_files/sms-tool/ feeds/packages/utils/sms-tool
 \cp -r ../my_files/modemdata-main/ feeds/packages/utils/modemdata 
 \cp -r ../my_files/luci-app-modemdata-main/luci-app-modemdata/ feeds/luci/applications
@@ -73,10 +42,9 @@ chmod -R 755 feeds/luci/applications/luci-app-modemdata/root
 chmod -R 755 feeds/luci/applications/luci-app-sms-tool-js/root
 chmod -R 755 feeds/packages/utils/modemdata/files/usr/share
 
-####### And finally configure whatever you want ##########
+#cd openwrt
+\cp -r ../my_files/my_final_defconfig .config
+make defconfig
 
-\cp -r ../configs/modem_ext.config .config
-make menuconfig
-make V=s -j$(nproc)
-
+bash ../mtk-openwrt-feeds/autobuild/unified/autobuild.sh filogic-mac80211-mt7988_rfb-mt7996 build
 
